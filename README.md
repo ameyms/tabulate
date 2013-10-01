@@ -1,4 +1,4 @@
-tabulate
+Tabulate
 ========
 
 A jquery plugin for working with paginated tables with emphasis on [Bootstrap](http://getbootstrap.com "Twitter Bootstrap")
@@ -12,16 +12,21 @@ Final API Goal:
 
 $('#mytable').tabulate({
     
-    source: xhrSource, //Function that returns a jquery deferred
+    // Function that returns a jquery deferred
+    source: xhrSource,
     
-    cellRenderer: renderers, //Array of functions
+    //Array of functions that return tds content
+    cellRenderer: renderers,
 
-    cellClass: foo, // String or Function that accepts row, column and cell item and returns class string
+    // String or Function that accepts row, column and cell item and returns class string
+    cellClass: foo, 
 
-    cellMeta: bar // String or Function that accepts row, column and cell item and returns an object that is set as $.data() for the td
+    // String or Function that accepts row, column and cell item 
+    // and returns an object that is set as $.data() for the td
+    cellMeta: bar,
 
     pagination: {
-        el: $('#mypagination'), //Bootstrap 'pagination' control
+        el: $('#mypagination') //Bootstrap 'pagination' control
     }
 });
 
