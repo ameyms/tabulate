@@ -1,3 +1,7 @@
+# Dev Files #
+#############
+node_modules/
+bower_components/
 lib-cov
 *.seed
 *.log
@@ -6,9 +10,17 @@ lib-cov
 *.out
 *.pid
 *.gz
-
 pids
 logs
 results
-
 npm-debug.log
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
