@@ -15,8 +15,8 @@ $('#mytable').tabulate({
     // Function that returns a jquery deferred
     source: xhrSource,
     
-    //Array of functions that return tds content
-    cellRenderer: renderers,
+    //A Function that accepts row, column and cell item and returns tds content as html
+    renderer: renderer,
 
     // String or Function that accepts row, column and cell item and returns class string
     cellClass: foo, 
@@ -25,9 +25,7 @@ $('#mytable').tabulate({
     // and returns an object that is set as $.data() for the td
     cellMeta: bar,
 
-    pagination: {
-        el: $('#mypagination') //Bootstrap 'pagination' control
-    }
+    pagination: $('#mypagination') //Bootstrap 'pagination' control
 });
 
 ```

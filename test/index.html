@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="/src/jquery.tabulate.js"></script>
+		<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+	</head>
+
+	<body>
+		<table id="tab" class="table table-striped">
+			<thead>
+				<th>Sr.</th>
+				<th>Name</th>
+				<th>Grade</th>
+				<th>Language</th>
+			</thead>
+			<tbody>
+
+			</tbody>
+		</table>
+		<script type="text/javascript">
+			var tab = $('#tab')
+
+			tab.tabulate();
+			tab.trigger('load');
+
+
+
+		</script>
+	</body>
+
+
+</html>
