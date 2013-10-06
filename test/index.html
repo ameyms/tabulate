@@ -17,11 +17,19 @@
 			<tbody>
 
 			</tbody>
+			<tfoot>
+				<td  colspan="4">
+				<ul id="paging" class="pagination">
+				</ul>
+				</td>
+			</tfoot>
 		</table>
 		<script type="text/javascript">
 			var tab = $('#tab')
 
 			var xhr = function () {
+
+				console.log(arguments);
 				return $.ajax({
 					url: 'sample.json',
 					dataType: 'json'
@@ -48,17 +56,24 @@
 			tab.tabulate({
 
 				source: xhr,
-				renderer: renderer
-			});
-			
-			tab.trigger('load');
-			tab.on('loadfailure', function (){
+				renderer: renderer,
+				pagination: $('#paging'),
+				pagesI18n: function(str) {
+					switch(str) {
+						case 'next':
+							return 'Aage';
+
+						case 'prev':
+							return 'Peeche';
+					}
+				}
+			})
+			.on('loadfailure', function (){
 				console.error(arguments);
 				alert('Failed!');
 			});
 
-
-
+			tab.trigger('load');
 		</script>
 	</body>
 

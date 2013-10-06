@@ -28,14 +28,15 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
 
 (function($, window){
 
+    var nothing,
 
     /* Helper functions */
-    var escapeHtml = function (str) {
+    escapeHtml = function (str) {
         $('<div/>').text(str).html(); 
-    };
+    },
 
     /* Defaults */
-    var noSrc = function () {
+    noSrc = function () {
         var dfd = new $.Deferred(),
             dummy = {
                         items: [],
@@ -45,17 +46,84 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
 
         dfd.resolve(dummy);
         return dfd;
-    };
+    },
 
-    var noop = function (arg) {
+    noop = function (arg) {
         return arg;
-    };
+    },
 
-    var defaultRenderer = function (row, col, item) {
+    defaultRenderer = function (row, col, item) {
 
         return escapeHtml(item+'');
+    },
+
+    goToPage = function (event) {
+
+        if($(this).hasClass('disabled')) {
+            return;
+        }
+
+        var pg = $(this).data('page'),
+            self = event.data.tabulator;
+
+        self.$el.trigger('pagechange', {page: pg, __self__: true});
+        self.moveTo(pg);
+    },
+
+    initPager = function () {
+
+        var nextStr = this.options.pagesI18n('next') || 'Next',
+            prevStr = this.options.pagesI18n('prev') || 'Previous',
+            dom;
+
+        dom = '<li data-page="next"><a href="#">'+nextStr+'</a></li>';
+        dom += '<li data-page="prev"><a href="#">'+prevStr+'</a></li>';
+
+        this.$paging.html(dom);
+
+    },
+
+
+    initPagination = function () {
+
+        var firstStr = this.options.pagesI18n('first') || 'First',
+            lastStr = this.options.pagesI18n('last') || 'Last',
+            dom;
+
+        dom = '<li data-page="first"><a href="#">'+firstStr+'</a></li>';
+        dom += '<li data-page="last"><a href="#">'+lastStr+'</a></li>';
+
+        this.$paging.html(dom);
+
+    },
+
+    //TODO: Combine following two functions into one
+    adjustPager = function () {
+        var currpage = this.dataSet.currPage, 
+            totalpages = this.dataSet.totalPages,
+            next = this.dataSet.next,
+            prev = this.dataSet.prev;
+
+        if(next || prev) {
+            this.enablePage('next', !!next);
+            this.enablePage('prev', !!prev);
+        }
+        else if(currpage && totalpages) {
+            this.enablePage('next', (currpage < totalpages));
+            this.enablePage('prev', (currpage > 1));
+        }
     };
 
+    adjustPagination = function () {
+        var currPage = this.dataSet.currPage, 
+            totalPages = this.dataSet.totalPages;
+
+        if(currPage && totalPages) {
+            this.enablePage('last', (currPage < totalPages));
+            this.enablePage('first', (currPage > 1));
+            this.enablePage(currPage, false);
+        }
+    };
 
     var Tabulator = function (el) {
 
@@ -69,7 +137,7 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
         cellClass: 'item-cell',
         cellMeta: $.noop,
         transpose: noop,
-        pageI18n: noop
+        pagesI18n: $.noop
 
     };
 
@@ -77,23 +145,47 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
 
         init: function (options) {
             this.options = this.getOptions(options);
-            this.initHandlers();
+
             this.$tableBody = this.$el.find('tbody');
 
             if(!this.$tableBody) {
                 this.$el.find('thead').after('<tbody></tbody>');
                 this.$tableBody = this.$el.find('tbody');
             }
+
+            this.$paging = this.options.pagination || this.options.pager;
+            if(this.$paging) {
+                this.initPaging();
+            }
+            this.initHandlers();
         },
 
         initHandlers: function () {
-            this.$el.on('load', $.proxy(this.fetch, this));
+
+            var self = this,
+                opts = {
+                            options:{page: 1}
+                        };
+
+            this.$el.on('load', opts, $.proxy(this.fetch, this));
+
+            if(this.$paging) {
+                this.$paging.on('click', 'li',  {tabulator: this}, goToPage);
+                this.$el.on('pagechange', function (e) {
+                    var pg = e.data.page;
+                    if(e.data.__self__ === true) {
+                        return;
+                    } else {
+                        self.moveTo(pg);
+                    }
+                });
+            }
         },
 
-        fetch: function () {
+        fetch: function (config) {
             this.cols = this.$el.find('thead th').length;
 
-            var dfd = this.options.source();
+            var dfd = this.options.source(config.data.options);
             dfd.done($.proxy(this.afterFetch, this))
             .fail($.proxy(this.loadFailure, this));
         },
@@ -102,6 +194,10 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
 
             this.dataSet = this.options.transpose.apply(this, arguments);
             this.renderRows();
+            this.renderPageButtons();
+            if(this.$paging) {
+                this.adjustPaging();
+            }
         },
 
         loadFailure: function () {
@@ -134,6 +230,40 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
             this.$el.trigger('render');
         },
 
+        renderPageButtons: function () {
+
+            var start, end, i, currPage, totalPages,
+                pgs = [],
+                pgDom = '';
+
+            if(this.options.pagination) {
+                this.$paging.find('li[data-page-type="actual"]').remove();
+                
+                currPage = this.dataSet.currPage;
+                totalPages = this.dataSet.totalPages;
+                start = Math.max(1, currPage - 2);
+                end = Math.min(currPage + 2, totalPages);
+
+                for(i = start; i <= end; i++) {
+                    pgDom += '<li data-page="'+i+'" data-page-type="actual">';
+                    pgDom += '<a href="#">'+i+'</a></li>';
+
+                }
+                this.$paging.find('li[data-page="first"]').after(pgDom);
+            }
+        },
+
+        moveTo: function (pg) {
+
+            this.fetch({
+                    options: {
+                        page: pg,
+                        next: this.dataSet.next
+                    }
+                });
+
+        },
+
         getDefaults: function () {
             return Tabulator.DEFAULTS;
         },
@@ -149,6 +279,34 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
                 };
             }
             return options;
+        },
+
+        initPaging: function () {
+            if(this.options.pager) {
+                initPager.call(this);
+            } else {
+                initPagination.call(this);
+            }
+        },
+
+
+        adjustPaging: function () {
+
+            if(this.options.pager) {
+                adjustPager.call(this);
+            }
+            else if(this.options.pagination) {
+                adjustPagination.call(this);
+            }
+        },
+
+        enablePage: function (pg, enable) {
+            var $pg = this.$paging.find('li[data-page="'+pg+'"]');
+            if(typeof enable === 'undefined' || enable) {
+                $pg.removeClass('disabled');
+            } else {
+                $pg.addClass('disabled');
+            }
         }
 
     };
@@ -162,6 +320,7 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
                 tabl.init(options);
 
             });
+            return $(this);
         }
     });
 

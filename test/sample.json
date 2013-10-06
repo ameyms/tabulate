@@ -11,8 +11,8 @@
 			"name": "Paul Irish",
 			"location": "Mountain View",
 			"language": "CSS"
-		}		
+		}
 	],
-	"total": 1,
-	"next": "akjsd73489390kdjfh"
+	"totalPages": 40,
+    "currPage": 4
 }
