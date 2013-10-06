@@ -2,7 +2,7 @@
     "name" : "tabulate",
     "title": "Tabulate",
     "description": "A jquery plugin for working with pagniated data tables with emphasis on Twitter Bootstrap",
-    "version" : "0.0.1-pre",
+    "version" : "0.1.0",
     "author" : {
         "name" : "Amey Sakhadeo",
         "url" : "http://ameyms.com"
@@ -18,7 +18,8 @@
       "node_modules",
       "bower_components",
       "**/*.json",
-      "src"
+      "src",
+      "test"
     ],
 
     "dependencies": {

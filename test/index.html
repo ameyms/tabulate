@@ -11,7 +11,7 @@
 			<thead>
 				<th>Sr.</th>
 				<th>Name</th>
-				<th>Grade</th>
+				<th>Location</th>
 				<th>Language</th>
 			</thead>
 			<tbody>
@@ -21,8 +21,41 @@
 		<script type="text/javascript">
 			var tab = $('#tab')
 
-			tab.tabulate();
+			var xhr = function () {
+				return $.ajax({
+					url: 'sample.json',
+					dataType: 'json'
+				});
+			};
+
+			var renderer = function (r, c, item) {
+				switch(c)
+				{
+					case 0:
+						return item.sr;
+
+					case 1:
+						return item.name;
+
+					case 2:
+						return item.location;
+
+					default:
+						return item.language;
+				}
+			};
+
+			tab.tabulate({
+
+				source: xhr,
+				renderer: renderer
+			});
+			
 			tab.trigger('load');
+			tab.on('loadfailure', function (){
+				console.error(arguments);
+				alert('Failed!');
+			});
 
 
 

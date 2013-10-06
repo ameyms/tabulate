@@ -78,6 +78,12 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
         init: function (options) {
             this.options = this.getOptions(options);
             this.initHandlers();
+            this.$tableBody = this.$el.find('tbody');
+
+            if(!this.$tableBody) {
+                this.$el.find('thead').after('<tbody></tbody>');
+                this.$tableBody = this.$el.find('tbody');
+            }
         },
 
         initHandlers: function () {
@@ -88,11 +94,44 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
             this.cols = this.$el.find('thead th').length;
 
             var dfd = this.options.source();
-            dfd.done($.proxy(this.renderRows, this));
+            dfd.done($.proxy(this.afterFetch, this))
+            .fail($.proxy(this.loadFailure, this));
+        },
+
+        afterFetch: function () {
+
+            this.dataSet = this.options.transpose.apply(this, arguments);
+            this.renderRows();
+        },
+
+        loadFailure: function () {
+            this.$el.trigger('loadfailure', arguments);
         },
 
         renderRows: function () {
-            //TODO
+
+            var self = this;
+            this.$tableBody.html('');
+
+            $.each(this.dataSet.items, function (row, item) {
+                
+                var $tr = $('<tr>');
+
+                for(var i = 0; i < self.cols; i++) {
+                    var cellDom = self.options.renderer(row, i, item, self.dataSet),
+                        klasses = self.options.cellClass(row, i, item, self.dataSet),
+                        cellAttrs = self.options.cellMeta(row, i, item, self.dataSet),
+                        $cell = $('<td>');
+
+                    $cell.html(cellDom).addClass(klasses).data(cellAttrs);
+                    $tr.append($cell);
+                }
+
+                self.$tableBody.append($tr);
+                
+            });
+
+            this.$el.trigger('render');
         },
 
         getDefaults: function () {
@@ -100,7 +139,15 @@ if (!jQuery) { throw new Error("Tabulate requires jQuery"); }
         },
 
         getOptions: function (options) {
+            var klass; 
+
             options = $.extend({}, this.getDefaults(), this.$el.data(), options);
+            if(! $.isFunction(options.cellClass)) {
+                klass = options.cellClass;
+                options.cellClass = function () {
+                    return klass;
+                };
+            }
             return options;
         }
 
