@@ -1,4 +1,4 @@
-Tabulate
+Tabulate [![Build Status](https://travis-ci.org/ameyms/tabulate.png)](https://travis-ci.org/ameyms/tabulate)
 ========
 
 A jquery plugin for working with paginated tables with emphasis on [Bootstrap](http://getbootstrap.com "Twitter Bootstrap")
