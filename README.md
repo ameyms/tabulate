@@ -3,8 +3,6 @@ Tabulate [![Build Status](https://travis-ci.org/ameyms/tabulate.png)](https://tr
 
 A jquery plugin for working with paginated tables with emphasis on [Bootstrap](http://getbootstrap.com "Twitter Bootstrap")
 
-__WARNING: This is currently only a stub and not ready for use__
-
 
 Final API Goal:
 
@@ -29,7 +27,7 @@ $('#mytable').tabulate({
 });
 
 ```
-
+__Note__: Bootstrap Pagination/Pager support has not been added yet (coming soon!)
 
 
 
