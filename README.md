@@ -24,9 +24,11 @@ $('#mytable').tabulate({
     cellMeta: bar,
 
     pagination: $('#mypagination') //Bootstrap 'pagination' control
+
 });
 
 ```
+__NOTE:__ Column resize has not yet been implemented
 
 
 
